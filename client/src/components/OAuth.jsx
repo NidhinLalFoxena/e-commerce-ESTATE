@@ -2,7 +2,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 import { app } from '../firebase';
 import { useDispatch } from 'react-redux';
-import { signInSuccess } from '../../redux/user/userSlice';
+import { signInFailure, signInSuccess } from '../../redux/user/userSlice';
 import { useNavigate } from 'react-router-dom';
 
 export default function OAuth() {
@@ -37,12 +37,13 @@ export default function OAuth() {
       console.log(result.user);
     } catch (error) {
       console.log(error);
+      dispatch(signInFailure(error.message));
     }
   };
   return (
     <button
       onClick={() => signInWithGoogle()}
-      className='bg-red-700 text-white p-3 uppercase hover:opacity-50 rounded-md'>
+      className='w-full bg-red-700 text-white p-3 uppercase hover:opacity-50 rounded-md'>
       Continue with google
     </button>
   );

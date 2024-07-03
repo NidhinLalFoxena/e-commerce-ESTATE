@@ -68,9 +68,8 @@ export default function SignIn() {
           className='bg-slate-800 text-white p-3 rounded-md my-3 hover:opacity-95 disabled:opacity-80'>
           {loading ? 'Loading...' : 'Sign In'}
         </button>
-
-        <OAuth />
       </form>
+      <OAuth />
       <div className='flex gap-2 mt-2'>
         <p>
           {` don't have an account?`}
