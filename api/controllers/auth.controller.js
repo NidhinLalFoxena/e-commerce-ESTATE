@@ -1,7 +1,7 @@
-import User from '../models/user.model.js';
-import bcryptjs from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { errorHandler } from '../utilities/error.js';
+import User from "../models/user.model.js";
+import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { errorHandler } from "../utilities/error.js";
 
 export const signup = async (req, res, next) => {
   console.log(req.body);
@@ -12,7 +12,7 @@ export const signup = async (req, res, next) => {
   try {
     await newUser.save();
 
-    res.status(201).json({ message: 'User created successfully' });
+    res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     next(error);
   }
@@ -22,15 +22,15 @@ export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return next(errorHandler(404, 'User not found'));
+    if (!user) return next(errorHandler(404, "User not found"));
     const isMatch = bcryptjs.compareSync(password, user.password);
-    if (!isMatch) return next(errorHandler(404, 'Invalid credentials'));
+    if (!isMatch) return next(errorHandler(404, "Invalid credentials"));
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
     const { password: pass, ...rest } = user._doc;
 
     res
-      .cookie('access_token', token, {
+      .cookie("access_token", token, {
         httpOnly: true,
       })
       .status(200)
@@ -44,10 +44,10 @@ export const signInWithGoogle = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (user) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: user._id }, "fdajp9ngap9ern");
       const { password, ...rest } = user._doc;
       res
-        .cookie('access_token', token, { httpOnly: true })
+        .cookie("access_token", token, { httpOnly: true })
         .status(200)
         .json(rest);
     } else {
@@ -58,7 +58,7 @@ export const signInWithGoogle = async (req, res, next) => {
 
       const newUser = new User({
         username:
-          req.body.name.split(' ').join('').toLowerCase() +
+          req.body.name.split(" ").join("").toLowerCase() +
           Math.round(Math.random().toString(36).slice(-4)),
         email: req.body.email,
         password: hashedPassword,
@@ -68,7 +68,7 @@ export const signInWithGoogle = async (req, res, next) => {
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
       const { password: pass, ...rest } = newUser._doc;
       res
-        .cookie('access_token', token, { httpOnly: true })
+        .cookie("access_token", token, { httpOnly: true })
         .status(200)
         .json(rest);
     }
