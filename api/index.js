@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
 import * as dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 /*MONGO="mongodb+srv://lalnidhinp02:Nidhin%402020@cluster0.sa4gaet.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 JWT_SECRET='iasdfhuafiahjf'
  */
@@ -21,6 +22,8 @@ mongoose
   });
 const app = express();
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.listen(3000, () => {
   console.log("Server started on port 300!!!0");
