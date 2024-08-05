@@ -1,22 +1,18 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
+import * as dotenv from "dotenv";
+/*MONGO="mongodb+srv://lalnidhinp02:Nidhin%402020@cluster0.sa4gaet.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+JWT_SECRET='iasdfhuafiahjf'
+ */
 
 dotenv.config();
 
-// const options = {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   serverSelectionTimeoutMS: 10000, // Timeout in milliseconds
-//   socketTimeoutMS: 45000, // Timeout for operations in milliseconds
-// };
+console.log(process.env.MONGO);
 
 mongoose
-  .connect(
-    "mongodb+srv://lalnidhinp02:Nidhin%402020@cluster0.sa4gaet.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-  )
+  .connect(process.env.MONGO)
   .then(() => {
     console.log("Connected to MongoDB");
   })
