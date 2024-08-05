@@ -7,14 +7,24 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
+import {
+  updateUserStart,
+  updateUserFailure,
+  updateUserSuccess,
+} from "../../redux/user/userSlice";
+import { useDispatch } from "react-redux";
 
 export default function Profile() {
   const fileRef = useRef(null);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
 
   const [file, setFile] = useState(undefined);
   const [parentageOfImageUpload, setPercentageOfImageUpload] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
+  const [updateSuccessMessage, setUpdateSuccessMessage] = useState(false);
+
+  const dispatch = useDispatch();
 
   const handleFileUpload = (file) => {
     const storage = getStorage(app);
@@ -43,17 +53,44 @@ export default function Profile() {
       }
     );
   };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+      setUpdateSuccessMessage(true);
+      console.log(data);
+    } catch (error) {
+      dispatch(updateUserFailure(error.message));
+    }
+  };
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
     }
   }, [file]);
 
-  const { currentUser } = useSelector((state) => state.user);
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-bold text-center my-7">Profile</h1>
-      <form className="flex justify-center flex-col">
+      <form onSubmit={handleSubmit} className="flex justify-center flex-col">
         <input
           onChange={(e) => setFile(e.target.files[0])}
           ref={fileRef}
@@ -79,34 +116,43 @@ export default function Profile() {
         </p>
 
         <input
+          onChange={handleChange}
           type="text"
           id="username"
-          value={currentUser?.username}
+          defaultValue={currentUser?.username}
           placeholder="Name"
           className="border border-gray-300 rounded-md p-2 my-2"
         />
         <input
+          onChange={handleChange}
           type="text"
           id="email"
-          value={currentUser?.email}
+          defaultValue={currentUser?.email}
           placeholder="Email"
           className="border border-gray-300 rounded-md p-2 my-2"
         />
         <input
-          type="text"
+          onChange={handleChange}
+          type="password"
           id="password"
           placeholder="Password"
           className="border border-gray-300 rounded-md p-2 my-2"
         />
-        <button className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">
-          Update
+        <button
+          disabled={loading}
+          className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80"
+        >
+          {loading ? "Loading......." : "Update"}
         </button>
-
-        <div className="flex justify-between mt-2">
-          <span className="text-red-700 cursor-pointer">Delete Account</span>
-          <span className="text-red-700 cursor-pointer">Sign Out</span>
-        </div>
       </form>
+      <div className="flex justify-between mt-2">
+        <span className="text-red-700 cursor-pointer">Delete Account</span>
+        <span className="text-red-700 cursor-pointer">Sign Out</span>
+      </div>
+      <p className="text-red-700">{error ? error : null}</p>
+      <p className="text-green-700">
+        {updateSuccessMessage ? "User Updated Successfully..!" : null}
+      </p>
     </div>
   );
 }
